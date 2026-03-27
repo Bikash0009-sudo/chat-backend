@@ -2,21 +2,27 @@ import express from "express";
 import http from "http";
 import cors from "cors";
 import { Server } from "socket.io";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
-app.use(cors());
 
-// ✅ create server
+// use env variable
+app.use(cors({
+  origin: process.env.CLIENT_URL
+}));
+
 const server = http.createServer(app);
 
-// ✅ socket attach
+// socket config
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: process.env.CLIENT_URL,
   },
 });
 
-// ✅ test route (IMPORTANT for ngrok)
+// test route
 app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
 });
@@ -29,7 +35,9 @@ io.on("connection", (socket) => {
   });
 });
 
-// ✅ IMPORTANT
-server.listen(5000, () => {
-  console.log("Server running on port 5000 🚀");
+// use env port
+const PORT = process.env.PORT || 5000;
+
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT} 🚀`);
 });
